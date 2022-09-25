@@ -93,6 +93,14 @@ class WhatsAppAPI {
         return response ?? promise;
     }
 
+    async getMedia(mediaID){
+        if (!mediaID) throw new Error("Media ID must be specified");
+        const promise = await api.getDocumentLink(this.token,this.v,mediaID);
+        const documentLink = await promise.json();
+        const secondPromise = await api.getImage(this.token,documentLink.url);
+        return await secondPromise.blob();
+    }
+
     /**
      * Mark a message as read
      * 

@@ -88,6 +88,29 @@ function sendMessage(token, v, phoneID, to, object, context) {
     return { promise, request };
 }
 
+async function getDocumentLink(token,v,mediaID){
+    return await req(`https://graph.facebook.com/${v}/${mediaID}`, {
+           method: "GET",
+           headers: {
+               'Authorization': `Bearer ${token}`,
+               'Content-Type': 'application/json'
+           }
+       });
+   
+   
+   }
+   
+   async function getImage(token,link){
+       return await req(link, {
+           method: "GET",
+           headers: {
+               'Authorization': `Bearer ${token}`,
+               'Content-Type': 'application/json',
+               'Accept': '*/*'
+           }
+       });
+   }
+
 /**
  * Mark a message as read
  * 
@@ -204,4 +227,4 @@ function deleteQR(token, v, phoneID, id) {
     });
 }
 
-module.exports = { sendMessage, readMessage, makeQR, getQR, updateQR, deleteQR, Request };
+module.exports = { sendMessage, readMessage, makeQR, getQR, getDocumentLink, updateQR, getImage , deleteQR, Request };
