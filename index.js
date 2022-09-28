@@ -26,7 +26,7 @@ class WhatsAppAPI {
      * @param {Boolean} parsed Whether to return a pre-processed response from the API or the raw fetch response. Intended for low level debugging.
      * @throws {Error} If token is not specified
      */
-    constructor(token, v = "v14.0", parsed = true) {
+    constructor(token, v = "v15.0", parsed = true) {
         if (!token) throw new Error("Token must be specified");
         this.token = token;
         this.v = v;
@@ -70,27 +70,13 @@ class WhatsAppAPI {
      * @throws {Error} If to is not specified
      * @throws {Error} If object is not specified
      */
-    sendMessage(phoneID, to, object, context = "") {
+    async sendMessage(phoneID, to, object, context = "") {
         if (!phoneID) throw new Error("Phone ID must be specified");
         if (!to) throw new Error("To must be specified");
         if (!object) throw new Error("Message must have a message object");
 
-        const { request, promise } = api.sendMessage(this.token, this.v, phoneID, to, object, context);
-        const response = this.parsed ? promise.then(e => e.json()) : undefined;
-
-
-        if (this._register) {
-            if (response) {
-                response.then(data => {
-                    const id = data?.messages ? data.messages[0]?.id : undefined;
-                    this._register(phoneID, request.to, JSON.parse(request[request.type]), request, id, data);
-                });
-            } else {
-                this._register(phoneID, request.to, JSON.parse(request[request.type]), request);
-            }
-        }
-
-        return response ?? promise;
+        const response = await api.sendMessage(this.token, this.v, phoneID, to, object, context);
+        return response;
     }
 
     async getMedia(mediaID){
@@ -98,7 +84,7 @@ class WhatsAppAPI {
         const promise = await api.getDocumentLink(this.token,this.v,mediaID);
         const documentLink = await promise.json();
         const secondPromise = await api.getImage(this.token,documentLink.url);
-        return await secondPromise.blob();
+        return await secondPromise.buffer();
     }
 
     /**

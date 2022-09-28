@@ -45,7 +45,7 @@ class Request {
 
         // If the object contains its name as a property, it means it's an array, use it, else use the class
         // This horrible thing comes from Contacts, the only API element which must be an array instead of an object...
-        this[this.type] = JSON.stringify(message[this.type] ?? message);
+        this[this.type] = JSON.stringify(message[this.type] ? message:undefined);
     }
 }
 
@@ -72,11 +72,11 @@ class Request {
  * @param {String} context The message id to reply to
  * @returns {SendMessageResponse} An object with the sent request and the fetch promise
  */
-function sendMessage(token, v, phoneID, to, object, context) {
+async function sendMessage(token, v, phoneID, to, object, context) {
     const request = new Request(object, to, context);
 
     // Make the post request
-    const promise = req(`https://graph.facebook.com/${v}/${phoneID}/messages`, {
+    return await req(`https://graph.facebook.com/${v}/${phoneID}/messages`, {
         method: "POST",
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -85,7 +85,6 @@ function sendMessage(token, v, phoneID, to, object, context) {
         body: JSON.stringify(request),
     });
 
-    return { promise, request };
 }
 
 async function getDocumentLink(token,v,mediaID){
@@ -175,7 +174,7 @@ function makeQR(token, v, phoneID, message, format) {
  * @returns {Promise} The fetch promise
  */
 function getQR(token, v, phoneID, id) {
-    return req(`https://graph.facebook.com/${v}/${phoneID}/message_qrdls/${id ?? ""}`, {
+    return req(`https://graph.facebook.com/${v}/${phoneID}/message_qrdls/${id ? id:""}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
         },
